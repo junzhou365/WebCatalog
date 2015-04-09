@@ -1,15 +1,66 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="row">
-        {{item.title}}
-        <br>
-        {{item.desc}}
-        <br>
-        {{category.name}}
-        <br>
+<div class="container">
+{% if item %}
+    <div class="row title">
+        <h2 class="text-center">Item: {{item.title}}</h2>
+    </div>
+    <div class="row section">
+        <h3>Category: {{category.name}}</h3>
+    </div>
+    <div class="row section">
+        <p>Description:<br> {{item.desc}}</p>
+    </div>
+    <div class="row section">
         <img src="{{image.img_url}}" class="img-responsive" alt="{{image.img_title}}">
     </div>
+    <div class="edit">
+        {% if user %}
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#deleteItem">Delete Item</button>
+        {% endif %}
+    </div>
+{% endif %}
+</div>
+{% if user and item %}
+<!-- Modal -->
+<div class="modal fade" id="deleteItem" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                Are you sure? This will delete this item.
+            </div>
+            <div class="modal-footer">
+                <form method="post" action="/catalog/category_{{category.id}}/item_{{item.id}}/deleteItem">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button "submit" class="btn btn-primary" role="button">Delete</button>
+                </form>
+                <!--<button type="Submit" class="btn btn-primary">Delete</button> -->
+            </div>
+        </div>
+    </div>
+{% endif %}
+</div>
+{% if deleted_item_title %}
+<script>$(function () {
+    $('#myModal').modal('show')
+})
+</script>
+        
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                Item <strong>{{ deleted_item_title }}</strong> has been deleted.
+            </div>
+            <div class="modal-footer">
+                <a type="button" class="btn btn-default" href="/catalog/category_{{category_id}}">OK</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 

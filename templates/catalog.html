@@ -1,28 +1,39 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="row edit">
-        {% if user %}
-        <a href='/catalog/newCategory'>Add Category</a>
-        {% endif %}
+<div class="container-fluid main-frame">
+    <div class="row title">
+        <h1 class="text-center">Catalog</h1>
     </div>
-    <div class="row content">
-        <div class="col-md-5">
-            <h2 class="text-center">Catagories</h2>
-            <ul>
-            {% for category in categories %}
-                <li><a href="/catalog/category_{{category.id}}">{{category.name}}</a></li>
-            {% endfor %}
-            </ul>
+    <div class="row">
+        <div class="col-md-2 left-side">
+            <div class="row content">
+                <h2 class="text-center section">Catagories</h2>
+                <ul class="section">
+                {% for category in categories %}
+                    <li><a href="/catalog/category_{{category.id}}">{{category.name}}</a></li>
+                {% endfor %}
+                </ul>
+            </div>
+            <div class="row edit"> 
+                {% if user %}
+                <a href='/catalog/newCategory' class="btn btn-primary btn-sm">Add Category</a>
+                {% endif %}
+            </div>
         </div>
-        <div class="col-md-2">
+
+        <div class="col-md-10" >
+            <div class="row" id="main-content">
+                <div class="content">
+                    <h2 class="text-center section">Latest Items</h2>
+                    {% for item in items %}
+                        <li><a href="/catalog/category_{{item.category_id}}/item_{{item.id}}">{{item.name}}</a></li>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-        <div class="col-md-5">
-            <h2 class="text-center">Latest Items</h2>
-            {% for item in items %}
-                <li><a href="/catalog/category_{{item.category_id}}/item_{{item.id}}">{{item.name}}</a></li>
-            {% endfor %}
-        </div>
+
     </div>
+</div>
 {% endblock %}
 

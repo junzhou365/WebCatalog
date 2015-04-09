@@ -20,6 +20,9 @@ def redirect_url():
 
 # Home Page
 @app.route('/')
+def welcome():
+    return render_template('welcome.html')
+
 @app.route('/catalog/')
 def renderHomePage():
     login_manager.initialize()
@@ -31,7 +34,13 @@ def renderHomePage():
 def showCategory(category_id):
     category = Category.filter_by_id(category_id)
     items = Item.get_all_by_category(category_id)
-    return render_page('showCategory.html', category = category, items = items)
+    items_2d = []
+    for i in range(0, len(items)):
+        temp = []
+        for j in range(i, min(len(items), i+3)):
+            temp.append(items[j])
+        items_2d.append(list(temp))
+    return render_page('showCategory.html', category = category, items = items_2d)
 
 
 # Edit a new category
@@ -95,11 +104,15 @@ def newItem(category_id):
         return render_page('updateItem.html')
 
 # Delete an item
-@app.route('/catalog/category_<int:category_id>/item_<int:item_id>/deleteItem', methods = ['GET'])
+@app.route('/catalog/category_<int:category_id>/item_<int:item_id>/deleteItem', methods = ['GET', 'POST'])
 @login_manager.login_required
 def deleteItem(category_id, item_id):
-    Item.delete_by_id(item_id)
-    return redirect(url_for('showCategory/category_id'))
+    deleted_item_title = Item.filter_by_id(item_id).title
+    if request.method == 'POST':
+        Item.delete_by_id(item_id)
+        return render_page('showItem.html', deleted_item_title = deleted_item_title, category_id = category_id)
+    else:
+        pass
 
 # Search
 @app.route('/catalog/search', methods = ['GET'])

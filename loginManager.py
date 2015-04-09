@@ -118,7 +118,7 @@ class LoginManager:
             if not u:
                 return render_template('login.html', error_message = "Invalid Login") 
             else:
-                flash("You were logged in")
+                #flash("You were logged in")
                 #redirect_to_home = redirect(url_for('renderHomePage'))
                 redirect_to_prev = redirect(request.form['next_url'])
                 response = make_response(redirect_to_prev)

@@ -74,6 +74,9 @@ class Item(Base):
         session.delete(itemToDelete)
         session.commit()
 
+    def get_img(self):
+        return session.query(Image).filter_by(id = self.img_id).one()
+
 class Image(Base):
     __tablename__ = 'image'
 

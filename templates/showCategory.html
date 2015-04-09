@@ -1,44 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container">
 {% if category %}
-<h2 class="text-center">Category: {{category.name}}</h2>
-{% if user %}
-<a href="/catalog/category_{{category.id}}/newItem">Add Item</a>
-{% endif %}
-<div class="row">
-    <h3 class="text-left">Items:</h3>
-    <ul>
-    {% for item in items %}
-        <li><a href="/catalog/category_{{category.id}}/item_{{item.id}}">{{item.title}}</a></li>
-    {% endfor %}
-    </ul>
-    {% if user %}
-    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#delete">Delete</button>
-    {% endif %}
-</div>
-<!-- Button trigger modal -->
+    <div class="row title">
+        <h2 class="text-center">Category: {{category.name}}</h2>
+    </div>
+    <div class="row">
+        <!--display thumbnails-->
+        <div class="section">
+            <h3 class="text-left">Items:</h3>
+            {% for i in range(0, items|length, 3) %}
+                <div class="row">
+                {% for j in range(0, items[i]|length) %}
+                    <div class="col-md-4 thumbnail text-center">
+                        <a href="/catalog/category_{{category.id}}/item_{{items[i][j].id}}">{{items[i][j].title}}</a>
+                        <img src="{{items[i][j].get_img().img_url}}" class="img-responsive">
+                    </div>
+                {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
 
-{% if user %}
-<!-- Modal -->
-<div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-body">
-                Are you sure? This will erase all items under the category.
-            </div>
-            <div class="modal-footer">
-                <form method="post" action="/catalog/category_{{category.id}}/deleteCategory">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button "submit" class="btn btn-primary" href="/catalog/category_{{category.id}}/deleteCategory" role="button">Delete</button>
-                </form>
-                <!--<button type="Submit" class="btn btn-primary">Delete</button> -->
+        <div class="edit">
+            {% if user %}
+            <a class="btn btn-primary btn-sm" href="/catalog/category_{{category.id}}/newItem">Add Item</a>
+            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#delete">Delete Category</button>
+            {% endif %}
+        </div>
+        <!-- Button trigger modal -->
+
+        {% if user %}
+        <!-- Modal -->
+        <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        Are you sure? This will erase all items under the category.
+                    </div>
+                    <div class="modal-footer">
+                        <form method="post" action="/catalog/category_{{category.id}}/deleteCategory">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button "submit" class="btn btn-primary" role="button">Delete</button>
+                        </form>
+                        <!--<button type="Submit" class="btn btn-primary">Delete</button> -->
+                    </div>
+                </div>
             </div>
         </div>
+        {% endif %}
     </div>
+{% endif %}
 </div>
-{% endif %}
-{% endif %}
 {% if deleted_category_name %}
 <script>$(function () {
     $('#myModal').modal('show')
@@ -60,4 +73,3 @@
 </div>
 {% endif %}
 {% endblock %}
-
