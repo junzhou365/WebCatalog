@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <h2>Search Results</h2>
+        <p>
+        Category:
+        {{category.name}}
+        </p>
+        <p>
+        Item title:
+        {{item.title}}
+        </p>
+        <p>
+        Item Description
+        {{item.desc}}
+        </p>
+        <p>
+        Item's category
+        {{category.name}}
+        </p>
+    </div>
+{% endblock %}
+
+
+
