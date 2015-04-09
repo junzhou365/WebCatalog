@@ -48,6 +48,7 @@ class Item(Base):
     desc = Column(Text)
     category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category)
+    img_id = Column(Integer, nullable=True)
 
     @classmethod
     def filter_by_id(cls, item_id):
@@ -62,8 +63,8 @@ class Item(Base):
         return list(session.query(Item).filter_by(category_id = category_id).all())
 
     @classmethod
-    def store(cls, title, desc, category_id):
-        newItem = Item(title = title, desc = desc, category_id = category_id)
+    def store(cls, title, desc, category_id, img_id):
+        newItem = Item(title = title, desc = desc, category_id = category_id, img_id = img_id)
         session.add(newItem)
         session.commit()
 
@@ -72,8 +73,30 @@ class Item(Base):
         itemToDelete = Item.filter_by_id(item_id)
         session.delete(itemToDelete)
         session.commit()
+
+class Image(Base):
+    __tablename__ = 'image'
+
+    id = Column(Integer, primary_key=True)
+    img_title = Column(String(250))
+    img_path = Column(String)
+    img_url = Column(String)
+
+    @classmethod
+    def store(cls, img_title, img_path, img_url):
+        # always store local image
+        if img_path and img_url:
+            img_url = None
+        newImg = Image(img_title = img_title, img_path = img_path, img_url = img_url)
+        session.add(newImg)
+        session.commit()
+        return newImg
+
+    @classmethod
+    def filter_by_id(cls, img_id):
+        return session.query(Image).filter_by(id = img_id).one()
         
-        
+
 engine = create_engine('postgresql+psycopg2:///catalog')
 Base.metadata.create_all(engine)
 

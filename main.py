@@ -1,7 +1,7 @@
 from flask import Flask, make_response, render_template, request, redirect, jsonify, url_for
 app = Flask(__name__)
 
-from catalogDB import Base, Category, Item 
+from catalogDB import Base, Category, Item, Image 
 from loginManager import LoginManager, User, SECRET
 app.secret_key = SECRET
 
@@ -72,14 +72,24 @@ def deleteCategory(category_id):
 def showItem(category_id, item_id):
     item = Item.filter_by_id(item_id)
     category = Category.filter_by_id(category_id)
-    return render_page('showItem.html', item = item, category = category)
+    image = Image.filter_by_id(item.img_id)
+    logging.error(image.id)
+    return render_page('showItem.html', item = item, category = category, image = image)
 
 # Edit a new Item
 @app.route('/catalog/category_<int:category_id>/newItem/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def newItem(category_id):
     if request.method == 'POST':
-        Item.store(request.form['item_title'], request.form['item_desc'], category_id)
+        #img_title = request.form['img_title']
+        #img_path = request.form['img_path']
+        img_title = None
+        img_path = None
+        img_url = request.form['img_url']
+        image = Image.store(img_title, img_path, img_url)
+        logging.error(image.id)
+        logging.error(image.img_url)
+        Item.store(request.form['item_title'], request.form['item_desc'], category_id, image.id)
         return redirect(url_for('renderHomePage'))
     else:
         return render_page('updateItem.html')
