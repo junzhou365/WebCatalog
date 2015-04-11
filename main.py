@@ -18,16 +18,25 @@ def redirect_url():
            request.referrer or \
            url_for('renderHomePage')
 
+
 # Home Page
 @app.route('/')
 def welcome():
     return render_template('welcome.html')
 
-@app.route('/catalog/')
+@app.route('/catalog/', methods = ['GET'])
 def renderHomePage():
     login_manager.initialize()
     categories = Category.get_all()
-    return render_page('catalog.html', categories = categories)
+    items = Item.get_latest_10_items()
+    items_2d = []
+    col_num = 6
+    for i in range(0, len(items), col_num):
+        temp = []
+        for j in range(i, min(len(items), i+col_num)):
+            temp.append(items[j])
+        items_2d.append(list(temp))
+    return render_page('catalog.html', categories = categories, items = items_2d, col_num = col_num)
 
 # Show a category
 @app.route('/catalog/category_<int:category_id>/', methods = ['GET'])
@@ -35,7 +44,7 @@ def showCategory(category_id):
     category = Category.filter_by_id(category_id)
     items = Item.get_all_by_category(category_id)
     items_2d = []
-    for i in range(0, len(items)):
+    for i in range(0, len(items), 3):
         temp = []
         for j in range(i, min(len(items), i+3)):
             temp.append(items[j])
@@ -82,7 +91,6 @@ def showItem(category_id, item_id):
     item = Item.filter_by_id(item_id)
     category = Category.filter_by_id(category_id)
     image = Image.filter_by_id(item.img_id)
-    logging.error(image.id)
     return render_page('showItem.html', item = item, category = category, image = image)
 
 # Edit a new Item
@@ -93,15 +101,32 @@ def newItem(category_id):
         #img_title = request.form['img_title']
         #img_path = request.form['img_path']
         img_title = None
-        img_path = None
         img_url = request.form['img_url']
+        img_path = None
+        
         image = Image.store(img_title, img_path, img_url)
-        logging.error(image.id)
-        logging.error(image.img_url)
         Item.store(request.form['item_title'], request.form['item_desc'], category_id, image.id)
         return redirect(url_for('renderHomePage'))
     else:
         return render_page('updateItem.html')
+
+# Edit a Item
+@app.route('/catalog/category_<int:category_id>/item_<int:item_id>/editItem/', methods = ['GET', 'POST'])
+@login_manager.login_required
+def editItem(category_id, item_id):
+    item = Item.filter_by_id(item_id)
+    image = Image.filter_by_id(item.img_id)
+    if request.method == 'POST':
+        #img_title = request.form['img_title']
+        #img_path = request.form['img_path']
+        img_title = None
+        img_path = None
+        img_url = request.form['img_url']
+        image.update(img_title, img_path, img_url)
+        item.update(request.form['item_title'], request.form['item_desc'], category_id, image.id)
+        return redirect(url_for('renderHomePage'))
+    else:
+        return render_page('updateItem.html', item = item, image = image)
 
 # Delete an item
 @app.route('/catalog/category_<int:category_id>/item_<int:item_id>/deleteItem', methods = ['GET', 'POST'])

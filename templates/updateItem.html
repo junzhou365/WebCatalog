@@ -7,7 +7,7 @@
         <div class="col-md-2"></div>
         <div class="col-md-3">
             <label for="itemTitle">Item Name</label>
-            <input class="form-control" name="item_title" value="{{item_title}}"> 
+            <input class="form-control" name="item_title" value="{{item.title if item}}"> 
         </div>
         <div class="col-md-3">
             <div class="error">{{error_item_title}}</div>	    
@@ -18,7 +18,7 @@
         <div class="col-md-2"></div>
         <div class="col-md-3">
             <label for="itemDesc">Item Description</label>
-            <textarea name="item_desc" class="form-control" rows="10" placeholder="Enter some text...">{{content}}</textarea>
+            <textarea name="item_desc" class="form-control" rows="10" placeholder="Enter some text...">{{item.desc if item}}</textarea>
         </div>
         <div class="col-md-3">
             <div class="error">{{error_item_title}}</div>	    
@@ -29,7 +29,7 @@
         <div class="col-md-2"></div>
         <div class="col-md-3">
             <label for="imgUrl">Item Image URL</label>
-            <input class="form-control" name="img_url" value="{{img_url}}"> 
+            <input class="form-control" name="img_url" value="{{image.img_url if image}}"> 
         </div>
         <div class="col-md-3">
             <div class="error">{{error_item_img_url}}</div>	    

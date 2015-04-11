@@ -1,17 +1,46 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, ForeignKey, Integer, String, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+import datetime
+import urllib2
+import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+import logging
+
 Base = declarative_base()
+
+# return file path
+def download_file(url):
+    folder_path = 'images/'
+    baseFile = os.path.basename(url)
+    #baseFile = baseFile.encode('ascii')
+    file_path = os.path.join(folder_path, baseFile)
+    req = urllib2.urlopen(url)
+    f = open(file_path, 'wb')
+    #meta = u.info()
+    #file_size = int(meta.getheaders("Content-Length")[0])
+
+    file_size_dl = 0
+    block_sz = 8192
+    while True:
+        buffer = req.read(block_sz)
+        if not buffer:
+            break
+
+        file_size_dl += len(buffer)
+        f.write(buffer)
+    f.close()
+    return file_path
 
 class Category(Base):
     __tablename__ = 'category'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
+    datetime = Column(DateTime, default=datetime.datetime.now)
 
     @classmethod
     def filter_by_id(cls, category_id):
@@ -30,6 +59,7 @@ class Category(Base):
         newCategory = Category(name = name)
         session.add(newCategory)
         session.commit()
+        return newCategory
 
     @classmethod
     def delete_by_id(cls, category_id):
@@ -49,6 +79,7 @@ class Item(Base):
     category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category)
     img_id = Column(Integer, nullable=True)
+    datetime = Column(DateTime, default=datetime.datetime.now)
 
     @classmethod
     def filter_by_id(cls, item_id):
@@ -68,11 +99,23 @@ class Item(Base):
         session.add(newItem)
         session.commit()
 
+    def update(self, title, desc, category_id, img_id):
+        self.title = title
+        self.desc = desc
+        self.category_id = category_id
+        self.img_id = self.img_id
+        session.commit()
+
     @classmethod
     def delete_by_id(cls, item_id):
         itemToDelete = Item.filter_by_id(item_id)
         session.delete(itemToDelete)
         session.commit()
+
+    @classmethod
+    def get_latest_10_items(cls):
+        result = session.query(Item).order_by(cls.datetime.desc()).all()
+        return result
 
     def get_img(self):
         return session.query(Image).filter_by(id = self.img_id).one()
@@ -84,13 +127,17 @@ class Image(Base):
     img_title = Column(String(250))
     img_path = Column(String)
     img_url = Column(String)
+    img_src = Column(String)
+    datetime = Column(DateTime, default=datetime.datetime.now)
 
     @classmethod
     def store(cls, img_title, img_path, img_url):
         # always store local image
-        if img_path and img_url:
-            img_url = None
-        newImg = Image(img_title = img_title, img_path = img_path, img_url = img_url)
+        if img_url:
+            img_path = download_file(img_url)
+        img_src = img_path
+             
+        newImg = Image(img_title = img_title, img_path = img_path, img_url = img_url, img_src = img_src)
         session.add(newImg)
         session.commit()
         return newImg
@@ -98,6 +145,15 @@ class Image(Base):
     @classmethod
     def filter_by_id(cls, img_id):
         return session.query(Image).filter_by(id = img_id).one()
+
+    def update(self, img_title, img_path, img_url):
+        # always store local image
+        if img_path and img_url:
+            img_url = None
+        self.img_title = img_title
+        self.img_path = img_path
+        self.img_url = img_url
+        session.commit()
         
 
 engine = create_engine('postgresql+psycopg2:///catalog')

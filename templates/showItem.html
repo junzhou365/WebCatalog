@@ -13,10 +13,11 @@
         <p>Description:<br> {{item.desc}}</p>
     </div>
     <div class="row section">
-        <img src="{{image.img_url}}" class="img-responsive" alt="{{image.img_title}}">
+        <img src="{{image.img_src}}" class="img-responsive" alt="{{image.img_title}}">
     </div>
     <div class="edit">
         {% if user %}
+        <a type="button" class="btn btn-primary btn-sm" href="/catalog/category_{{category.id}}/item_{{item.id}}/editItem">Edit Item</a>
         <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#deleteItem">Delete Item</button>
         {% endif %}
     </div>

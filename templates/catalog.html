@@ -22,18 +22,22 @@
             </div>
         </div>
 
-        <div class="col-md-10" >
-            <div class="row" id="main-content">
-                <div class="content">
-                    <h2 class="text-center section">Latest Items</h2>
-                    {% for item in items %}
-                        <li><a href="/catalog/category_{{item.category_id}}/item_{{item.id}}">{{item.name}}</a></li>
-                    {% endfor %}
-                </div>
+        <div class="col-md-10" id="main-content">
+            <div class="row">
+                <h2 class="text-center section">Latest Items</h2>
             </div>
+            {% for i in range(0, items|length, col_num) %}
+                <div class="row content">
+                {% for j in range(0, items[i]|length) %}
+                    <div class="col-md-{{12//col_num}} thumbnail text-center">
+                        <a href="/catalog/category_{{items[i][j].category_id}}/item_{{items[i][j].id}}">{{items[i][j].title}}</a>
+                        <img src="{{items[i][j].get_img().img_url}}" class="img-responsive">
+                    </div>
+                {% endfor %}
+                </div>
+            {% endfor %}
         </div>
 
     </div>
 </div>
 {% endblock %}
-
