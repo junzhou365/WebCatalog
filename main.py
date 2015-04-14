@@ -97,6 +97,7 @@ def showItem(category_id, item_id):
 @app.route('/catalog/category_<int:category_id>/newItem/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def newItem(category_id):
+    category = Category.filter_by_id(category_id)
     if request.method == 'POST':
         img_title = None
         img_path = None
@@ -106,7 +107,7 @@ def newItem(category_id):
         Item.store(request.form['item_title'], request.form['item_desc'], category_id, image.id)
         return redirect(url_for('renderHomePage'))
     else:
-        return render_page('updateItem.html')
+        return render_page('updateItem.html', category = category)
 
 # Edit a Item
 @app.route('/catalog/category_<int:category_id>/item_<int:item_id>/editItem/', methods = ['GET', 'POST'])
