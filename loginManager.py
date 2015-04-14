@@ -90,10 +90,10 @@ class LoginManager:
 
     def initialize(self):
         uid = self.read_cookie('user_id')
-        self.user = uid and User.filter_by_id(int(uid))
+        self.user = uid and User.get_by_id(int(uid))
         
     def get_valid_user(self, name, pw):
-        u = User.filter_by_name(name)
+        u = User.get_by_name(name)
         if u and self.valid_pw(name, pw, u.pw_hash):
             return u
 
@@ -139,7 +139,7 @@ class LoginManager:
             verify = request.form.get('verify')
             email = request.form.get('email')
 
-            u = User.filter_by_name(username)
+            u = User.get_by_name(username)
             if u:
                 return render_template('signup.html', error_username="User already exists.")
 
@@ -190,11 +190,11 @@ class User(Base):
     email = Column(String(250))
 
     @classmethod
-    def filter_by_name(cls, name):
+    def get_by_name(cls, name):
         return session.query(User).filter_by(name = name).first()
 
     @classmethod
-    def filter_by_id(cls, uid):
+    def get_by_id(cls, uid):
         return session.query(User).filter_by(id = uid).first()
 
     @classmethod

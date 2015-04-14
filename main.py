@@ -41,7 +41,7 @@ def renderHomePage():
 # Show a category
 @app.route('/catalog/category_<int:category_id>/', methods = ['GET'])
 def showCategory(category_id):
-    category = Category.filter_by_id(category_id)
+    category = Category.get_by_id(category_id)
     items = Item.get_all_by_category(category_id)
     items_2d = []
     for i in range(0, len(items), 3):
@@ -66,7 +66,7 @@ def newCategory():
 @app.route('/catalog/category_<int:category_id>/editCategory/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def editCategory(category_id):
-    editingCategory = filter_by_id(category_id)
+    editingCategory = get_by_id(category_id)
     if request.method == 'POST':
         if request.form['category_name']:
             editingCategory.name = request.form['category_name']
@@ -78,7 +78,7 @@ def editCategory(category_id):
 @app.route('/catalog/category_<int:category_id>/deleteCategory', methods = ['GET', 'POST']) 
 @login_manager.login_required
 def deleteCategory(category_id):
-    deleted_category_name = Category.filter_by_id(category_id).name
+    deleted_category_name = Category.get_by_id(category_id).name
     if request.method == 'POST':
         Category.delete_by_id(category_id)
         return render_page('showCategory.html', deleted_category_name = deleted_category_name)
@@ -88,16 +88,16 @@ def deleteCategory(category_id):
 # Show an Item
 @app.route('/catalog/category_<int:category_id>/item_<int:item_id>', methods = ['GET'])
 def showItem(category_id, item_id):
-    item = Item.filter_by_id(item_id)
-    category = Category.filter_by_id(category_id)
-    image = Image.filter_by_id(item.img_id)
+    item = Item.get_by_id(item_id)
+    category = Category.get_by_id(category_id)
+    image = Image.get_by_id(item.img_id)
     return render_page('showItem.html', item = item, category = category, image = image)
 
 # Edit a new Item
 @app.route('/catalog/category_<int:category_id>/newItem/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def newItem(category_id):
-    category = Category.filter_by_id(category_id)
+    category = Category.get_by_id(category_id)
     if request.method == 'POST':
         img_title = None
         img_path = None
@@ -113,9 +113,9 @@ def newItem(category_id):
 @app.route('/catalog/category_<int:category_id>/item_<int:item_id>/editItem/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def editItem(category_id, item_id):
-    item = Item.filter_by_id(item_id)
-    image = Image.filter_by_id(item.img_id)
-    category = Category.filter_by_id(category_id)
+    item = Item.get_by_id(item_id)
+    image = Image.get_by_id(item.img_id)
+    category = Category.get_by_id(category_id)
     categories = Category.get_all()
     if request.method == 'POST':
         img_title = None
@@ -132,7 +132,7 @@ def editItem(category_id, item_id):
 @app.route('/catalog/category_<int:category_id>/item_<int:item_id>/deleteItem', methods = ['GET', 'POST'])
 @login_manager.login_required
 def deleteItem(category_id, item_id):
-    deleted_item_title = Item.filter_by_id(item_id).title
+    deleted_item_title = Item.get_by_id(item_id).title
     if request.method == 'POST':
         Item.delete_by_id(item_id)
         return render_page('showItem.html', deleted_item_title = deleted_item_title, category_id = category_id)
@@ -143,8 +143,8 @@ def deleteItem(category_id, item_id):
 @app.route('/catalog/search', methods = ['GET'])
 def search():
     q = request.args.get('q')
-    category = Category.filter_by_name(q)
-    item = Item.filter_by_title(q)
+    category = Category.get_by_name(q)
+    item = Item.get_by_title(q)
     return render_page('searchResult.html', category = category, item = item)
 
 # Login
@@ -169,7 +169,7 @@ def items_json(category_id):
 
 @app.route('/catalog/category_<int:category_id>/item_<int:item_id>.json')
 def item_json(category_id, item_id):
-    item = Item.filter_by_id(item_id)
+    item = Item.get_by_id(item_id)
     return jsonify(Item=item.serialize)
     
 

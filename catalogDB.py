@@ -45,11 +45,11 @@ class Category(Base):
     datetime = Column(DateTime, default=datetime.datetime.now)
 
     @classmethod
-    def filter_by_id(cls, category_id):
+    def get_by_id(cls, category_id):
         return session.query(Category).filter_by(id = category_id).one()
 
     @classmethod
-    def filter_by_name(cls, name):
+    def get_by_name(cls, name):
         return session.query(Category).filter_by(name = name).first()
 
     @classmethod
@@ -68,7 +68,7 @@ class Category(Base):
         itemsToDelete = Item.get_all_by_category(category_id)
         for itemToDelete in itemsToDelete:
             session.delete(itemToDelete)
-        categoryToDelete = Category.filter_by_id(category_id)
+        categoryToDelete = Category.get_by_id(category_id)
         session.delete(categoryToDelete)
         session.commit()
 
@@ -93,11 +93,11 @@ class Item(Base):
     datetime = Column(DateTime, default=datetime.datetime.now)
 
     @classmethod
-    def filter_by_id(cls, item_id):
+    def get_by_id(cls, item_id):
         return session.query(Item).filter_by(id = item_id).one()
 
     @classmethod
-    def filter_by_title(cls, title):
+    def get_by_title(cls, title):
         return session.query(Item).filter_by(title = title).first()
 
     @classmethod
@@ -120,7 +120,7 @@ class Item(Base):
 
     @classmethod
     def delete_by_id(cls, item_id):
-        itemToDelete = Item.filter_by_id(item_id)
+        itemToDelete = Item.get_by_id(item_id)
         session.delete(itemToDelete)
         session.commit()
 
@@ -137,8 +137,8 @@ class Item(Base):
        """Return object data in easily serializeable format"""
        return {
            'datetime'   : self.datetime,
-           'image_url'  : Image.filter_by_id(self.img_id).img_url,
-           'category'   : Category.filter_by_id(self.category_id).name,
+           'image_url'  : Image.get_by_id(self.img_id).img_url,
+           'category'   : Category.get_by_id(self.category_id).name,
            'description'    : self.desc,
            'title'         : self.title,
            'id'         : self.id,
@@ -167,7 +167,7 @@ class Image(Base):
         return newImg
 
     @classmethod
-    def filter_by_id(cls, img_id):
+    def get_by_id(cls, img_id):
         return session.query(Image).filter_by(id = img_id).one()
 
     def update(self, img_title, img_path, img_url):
