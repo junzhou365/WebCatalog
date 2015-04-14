@@ -7,10 +7,12 @@
         <h2 class="text-center">{{item.title}}</h2>
     </div>
     <div class="row section">
-        <h3>Category: {{category.name}}</h3>
+        <div class="col-md-2">Category:</div>
+        <div class="col-md-10">{{category.name}}</div>
     </div>
     <div class="row section">
-        <p>Description:<br> {{item.desc | safe}}</p>
+        <div class="col-md-2">Description:</div>
+        <div class="col-md-10">{{item.desc | safe}}</div>
     </div>
     <div class="row section">
         <img src="{{image.img_src}}" class="img-responsive center-block" alt="{{image.img_title}}">
