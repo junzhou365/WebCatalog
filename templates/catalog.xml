@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<catalog>
+{% for category in categories %}
+    <category id="{{category.id}}">
+        <name>{{category.name}}</name>
+        <datetime>{{category.datetime}}</datetime>
+    {% for item in category.get_all_items() %}
+        <item id="{{item.id}}">
+            <title>{{item.title}}</title>
+            <description>{{item.desc}}</description>
+            <img_url>{{item.get_img().img_url}}</img_url>
+            <datetime>{{item.datetime}}</datetime>
+        </item>
+    {% endfor %}
+    </category>
+{% endfor %}
+</catalog>
+
