@@ -66,7 +66,7 @@ def newCategory():
 @app.route('/catalog/category_<int:category_id>/editCategory/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def editCategory(category_id):
-    editingCategory = get_by_id(category_id)
+    editingCategory = Category.get_by_id(category_id)
     if request.method == 'POST':
         if request.form['category_name']:
             editingCategory.name = request.form['category_name']
