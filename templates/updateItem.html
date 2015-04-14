@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2 class="text-center">Update Item</h2>
+<div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <h2>Update Item</h2>
+    </div>
+</div>
 <form method="post">   
+    <!--Name-->
     <div class="row">
-        <div class="col-md-2"></div>
-        <div class="col-md-3">
+        <div class="col-md-4"></div>
+        <div class="col-md-2">
             <label for="itemTitle">Item Name</label>
             <input class="form-control" name="item_title" value="{{item.title if item}}"> 
         </div>
@@ -14,9 +20,10 @@
         </div>
     </div>
     <br>
+    <!--Description-->
     <div class="row">
-        <div class="col-md-2"></div>
-        <div class="col-md-3">
+        <div class="col-md-4"></div>
+        <div class="col-md-2">
             <label for="itemDesc">Item Description</label>
             <textarea name="item_desc" class="form-control" rows="10" placeholder="Enter some text...">{{item.desc if item}}</textarea>
         </div>
@@ -25,9 +32,10 @@
         </div>
     </div>
     <br>
+    <!--URL-->
     <div class="row">
-        <div class="col-md-2"></div>
-        <div class="col-md-3">
+        <div class="col-md-4"></div>
+        <div class="col-md-2">
             <label for="imgUrl">Item Image URL</label>
             <input class="form-control" name="img_url" value="{{image.img_url if image}}"> 
         </div>
@@ -36,8 +44,31 @@
         </div>
     </div>
     <br>
+    <!--Category-->
     <div class="row">
-        <div class="col-md-3"></div>
+        <div class="col-md-4"></div>
+        <div class="col-md-2">
+            <label for="imgUrl">Category</label>
+            <select class="form-control" name="category_id">
+            {% if category %}
+                <option value={{category.id}}>{{category.name}}</option>
+            {% endif %}
+            {% if categories  %}
+                {% for c in categories %}
+                    {% if category and c.id != category.id %}
+                    <option value={{c.id}}>{{c.name}}</option>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            </select>	
+        </div>
+        <div class="col-md-3">
+            <div class="error">{{error_item_category}}</div>	    
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-5"></div>
         <button type="submit" class="btn btn-default">Submit</button>
     </div>
 </form>

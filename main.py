@@ -98,11 +98,9 @@ def showItem(category_id, item_id):
 @login_manager.login_required
 def newItem(category_id):
     if request.method == 'POST':
-        #img_title = request.form['img_title']
-        #img_path = request.form['img_path']
         img_title = None
-        img_url = request.form['img_url']
         img_path = None
+        img_url = request.form['img_url']
         
         image = Image.store(img_title, img_path, img_url)
         Item.store(request.form['item_title'], request.form['item_desc'], category_id, image.id)
@@ -116,17 +114,18 @@ def newItem(category_id):
 def editItem(category_id, item_id):
     item = Item.filter_by_id(item_id)
     image = Image.filter_by_id(item.img_id)
+    category = Category.filter_by_id(category_id)
+    categories = Category.get_all()
     if request.method == 'POST':
-        #img_title = request.form['img_title']
-        #img_path = request.form['img_path']
         img_title = None
         img_path = None
         img_url = request.form['img_url']
         image.update(img_title, img_path, img_url)
-        item.update(request.form['item_title'], request.form['item_desc'], category_id, image.id)
-        return redirect('catalog/category_%s/' % category_id)
+        new_category_id = request.form['category_id'] 
+        item.update(request.form['item_title'], request.form['item_desc'], new_category_id, image.id)
+        return redirect('catalog/category_%s/' % item.category_id)
     else:
-        return render_page('updateItem.html', item = item, image = image)
+        return render_page('updateItem.html', item = item, image = image, category = category, categories = categories)
 
 # Delete an item
 @app.route('/catalog/category_<int:category_id>/item_<int:item_id>/deleteItem', methods = ['GET', 'POST'])
