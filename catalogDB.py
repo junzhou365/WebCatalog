@@ -72,6 +72,15 @@ class Category(Base):
         session.delete(categoryToDelete)
         session.commit()
 
+    @property
+    def serialize(self):
+       """Return object data in easily serializeable format"""
+       return {
+           'datetime'   : self.datetime,
+           'name'         : self.name,
+           'id'         : self.id,
+       }
+
 class Item(Base):
     __tablename__ = 'item'
 
@@ -122,6 +131,18 @@ class Item(Base):
 
     def get_img(self):
         return session.query(Image).filter_by(id = self.img_id).one()
+
+    @property
+    def serialize(self):
+       """Return object data in easily serializeable format"""
+       return {
+           'datetime'   : self.datetime,
+           'image_url'  : Image.filter_by_id(self.img_id).img_url,
+           'category'   : Category.filter_by_id(self.category_id).name,
+           'description'    : self.desc,
+           'title'         : self.title,
+           'id'         : self.id,
+       }
 
 class Image(Base):
     __tablename__ = 'image'

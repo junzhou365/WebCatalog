@@ -156,8 +156,22 @@ app.add_url_rule('/catalog/signup/', 'signup', login_manager.signup, methods = [
 # Logout
 app.add_url_rule('/catalog/logout/', 'logout', login_manager.logout, methods = ['GET'])
 
+#@app.route('/catalog/category_<int:category_id>.json')
+@app.route('/catalog.json')
+def categories_json():
+    categories = Category.get_all()
+    return jsonify(Categories=[c.serialize for c in categories])
 
+@app.route('/catalog/category_<int:category_id>.json')
+def items_json(category_id):
+    items = Item.get_all_by_category(category_id)
+    return jsonify(Items=[i.serialize for i in items])
 
+@app.route('/catalog/category_<int:category_id>/item_<int:item_id>.json')
+def item_json(category_id, item_id):
+    item = Item.filter_by_id(item_id)
+    return jsonify(Item=item.serialize)
+    
 
 if __name__ == '__main__':
     app.debug = True
