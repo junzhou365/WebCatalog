@@ -10,12 +10,14 @@
         <!--display thumbnails-->
         <div class="section">
             <h3 class="text-left">Items:</h3>
-            {% for i in range(0, items|length, 3) %}
+            {% for i in range(0, items|length) %}
                 <div class="row">
                 {% for j in range(0, items[i]|length) %}
                     <div class="col-md-4 thumbnail text-center">
-                        <a href="/catalog/category_{{category.id}}/item_{{items[i][j].id}}">{{items[i][j].title}}</a>
-                        <img src="{{items[i][j].get_img().img_url}}" class="img-responsive">
+                        {{items[i][j].title}}
+                        <a href="/catalog/category_{{category.id}}/item_{{items[i][j].id}}">
+                            <img src="{{items[i][j].get_img().img_url}}" class="img-responsive">
+                        </a>
                     </div>
                 {% endfor %}
                 </div>

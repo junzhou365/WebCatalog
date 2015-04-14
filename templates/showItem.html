@@ -4,7 +4,7 @@
 <div class="container">
 {% if item %}
     <div class="row title">
-        <h2 class="text-center">Item: {{item.title}}</h2>
+        <h2 class="text-center">{{item.title}}</h2>
     </div>
     <div class="row section">
         <h3>Category: {{category.name}}</h3>
@@ -13,7 +13,7 @@
         <p>Description:<br> {{item.desc}}</p>
     </div>
     <div class="row section">
-        <img src="{{image.img_src}}" class="img-responsive" alt="{{image.img_title}}">
+        <img src="{{image.img_src}}" class="img-responsive center-block" alt="{{image.img_title}}">
     </div>
     <div class="edit">
         {% if user %}

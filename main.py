@@ -1,5 +1,5 @@
-from flask import Flask, make_response, render_template, request, redirect, jsonify, url_for
-app = Flask(__name__)
+from flask import Flask, make_response, render_template, request, redirect, jsonify, url_for, send_from_directory
+app = Flask(__name__) 
 
 from catalogDB import Base, Category, Item, Image 
 from loginManager import LoginManager, User, SECRET
@@ -30,7 +30,7 @@ def renderHomePage():
     categories = Category.get_all()
     items = Item.get_latest_10_items()
     items_2d = []
-    col_num = 6
+    col_num = 4 # col_num % 12 = 0
     for i in range(0, len(items), col_num):
         temp = []
         for j in range(i, min(len(items), i+col_num)):
@@ -124,7 +124,7 @@ def editItem(category_id, item_id):
         img_url = request.form['img_url']
         image.update(img_title, img_path, img_url)
         item.update(request.form['item_title'], request.form['item_desc'], category_id, image.id)
-        return redirect(url_for('renderHomePage'))
+        return redirect('catalog/category_%s/' % category_id)
     else:
         return render_page('updateItem.html', item = item, image = image)
 

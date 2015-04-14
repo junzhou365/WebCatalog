@@ -41,6 +41,7 @@ h1 {
     border-bottom-style: solid;
     border-bottom-width: thin;
     border-bottom-color: grey;
+    padding-top: 10px;
     padding-bottom: 10px;
 }
 
@@ -55,12 +56,9 @@ h1 {
     padding: 20px;
 }
 
-.thumbnail {
-    border-bottom-style: solid;
-    border-bottom-width: thin;
-    padding-bottom: 10px;
+.thumbnail-box {
+    padding: 5px;
 }
-
 
 .error {
     color: red;
@@ -69,7 +67,6 @@ h1 {
 .navbar-text {
     font-size: 14px;
 }
-
 
 .main-title {
     display: block;

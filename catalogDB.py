@@ -11,13 +11,15 @@ from sqlalchemy.orm import sessionmaker
 import logging
 
 Base = declarative_base()
+RELATIVE_FOLDER_PATH = "static/images/"
+#LOCAL_PATH = "http://localhost:5000/catalog/"
+
 
 # return file path
 def download_file(url):
-    folder_path = 'images/'
     baseFile = os.path.basename(url)
     #baseFile = baseFile.encode('ascii')
-    file_path = os.path.join(folder_path, baseFile)
+    file_path = os.path.join(RELATIVE_FOLDER_PATH, baseFile)
     req = urllib2.urlopen(url)
     f = open(file_path, 'wb')
     #meta = u.info()
@@ -33,7 +35,7 @@ def download_file(url):
         file_size_dl += len(buffer)
         f.write(buffer)
     f.close()
-    return file_path
+    return '/' + file_path
 
 class Category(Base):
     __tablename__ = 'category'
@@ -104,6 +106,7 @@ class Item(Base):
         self.desc = desc
         self.category_id = category_id
         self.img_id = self.img_id
+        self.datetime = datetime.datetime.now()
         session.commit()
 
     @classmethod
@@ -153,6 +156,7 @@ class Image(Base):
         self.img_title = img_title
         self.img_path = img_path
         self.img_url = img_url
+        self.datetime = datetime.datetime.now()
         session.commit()
         
 
