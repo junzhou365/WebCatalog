@@ -26,10 +26,10 @@
             <div class="col-md-4"></div>
             <div class="col-md-4">
                 <label for="itemDesc">Item Description</label>
-                <textarea name="item_desc" class="form-control" rows="10" placeholder="Enter some text...">{{item.desc if item}}</textarea>
+                <textarea name="item_desc" class="form-control" rows="10" placeholder="Enter some text...">{{item.desc if item | safe}}</textarea>
             </div>
             <div class="col-md-3">
-                <div class="error">{{error_item_title}}</div>	    
+                <div class="error">{{error_item_desc}}</div>	    
             </div>
         </div>
         <br>

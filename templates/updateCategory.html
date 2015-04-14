@@ -14,10 +14,11 @@
             <div class="col-md-4"></div>
             <div class="col-md-3">
                 <label for="categoryTitle">Category Name</label>
-                <input class="form-control" name="category_name" value="{{category.name if category}}"> 
+                <input class="form-control" name="category_name" value="{{category.name if category else category_name}}"> 
             </div>
             <div class="col-md-3">
-                <div class="error">{{error_catagory_name}}</div>	    
+                <label for="categoryErrorTitle"></label>
+                <div class="error">{{error_category_name}}</div>	    
             </div>
         </div>
         <br>

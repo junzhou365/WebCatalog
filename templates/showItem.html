@@ -10,7 +10,7 @@
         <h3>Category: {{category.name}}</h3>
     </div>
     <div class="row section">
-        <p>Description:<br> {{item.desc}}</p>
+        <p>Description:<br> {{item.desc | safe}}</p>
     </div>
     <div class="row section">
         <img src="{{image.img_src}}" class="img-responsive center-block" alt="{{image.img_title}}">
@@ -21,6 +21,7 @@
         <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#deleteItem">Delete Item</button>
         {% endif %}
     </div>
+    <br>
 {% endif %}
 </div>
 {% if user and item %}

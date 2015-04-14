@@ -57,8 +57,24 @@ def showCategory(category_id):
 @login_manager.login_required
 def newCategory():
     if request.method == 'POST':
-        Category.store(request.form['category_name'])
-        return redirect(url_for('renderHomePage'))
+        category_name = request.form['category_name']
+        params = dict(category_name = category_name)
+        has_fault = False
+
+        if not category_name:
+            params['error_category_name'] = "Empty Category Name"
+            has_fault = True
+
+        elif Category.get_by_name(category_name):
+            params['error_category_name'] = "Category already exists"
+            has_fault = True
+            
+        if has_fault:
+            return render_page('updateCategory.html', **params)
+
+        else:
+            category = Category.store(category_name)
+            return redirect('/catalog/category_%s' % category.id)
     else:
         return render_page('updateCategory.html')
 
@@ -68,9 +84,27 @@ def newCategory():
 def editCategory(category_id):
     editingCategory = Category.get_by_id(category_id)
     if request.method == 'POST':
-        if request.form['category_name']:
-            editingCategory.name = request.form['category_name']
-            return redirect(url_for('renderHomePage'))
+        category_name = request.form['category_name']
+        params = dict(category_name = category_name)
+        has_fault = False
+
+        if not category_name:
+            params['error_category_name'] = "Empty Category Name"
+            has_fault = True
+
+        elif Category.get_by_name(category_name):
+            params['error_category_name'] = "Category already exists"
+            has_fault = True
+            
+        if has_fault:
+            return render_page('updateCategory.html', **params)
+
+        else:
+            editingCategory.update(category_name)
+            # update all itmes of this category
+            for item in editingCategory.get_all_items():
+                item.update(category_id = editingCategory.id)
+            return redirect('/catalog/category_%s' % editingCategory.id)
     else:
         return render_page('updateCategory.html', category = editingCategory)
 
@@ -104,8 +138,8 @@ def newItem(category_id):
         img_url = request.form['img_url']
         
         image = Image.store(img_title, img_path, img_url)
-        Item.store(request.form['item_title'], request.form['item_desc'], category_id, image.id)
-        return redirect(url_for('renderHomePage'))
+        item = Item.store(request.form['item_title'], request.form['item_desc'], category_id, image.id)
+        return redirect('catalog/category_%s/item_%s' % (item.category_id, item.id))
     else:
         return render_page('updateItem.html', category = category)
 
@@ -123,8 +157,8 @@ def editItem(category_id, item_id):
         img_url = request.form['img_url']
         image.update(img_title, img_path, img_url)
         new_category_id = request.form['category_id'] 
-        item.update(request.form['item_title'], request.form['item_desc'], new_category_id, image.id)
-        return redirect('catalog/category_%s/' % item.category_id)
+        item.update(title = request.form['item_title'], desc = request.form['item_desc'], category_id = new_category_id, img_id = image.id)
+        return redirect('catalog/category_%s/item_%s' % (item.category_id, item.id))
     else:
         return render_page('updateItem.html', item = item, image = image, category = category, categories = categories)
 

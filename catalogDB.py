@@ -63,6 +63,11 @@ class Category(Base):
         session.commit()
         return newCategory
 
+    def update(self, name):
+        self.name = name
+        self.datetime = datetime.datetime.now()
+        session.commit()
+
     @classmethod
     def delete_by_id(cls, category_id):
         itemsToDelete = Item.get_all_by_category(category_id)
@@ -112,14 +117,20 @@ class Item(Base):
         newItem = Item(title = title, desc = desc, category_id = category_id, img_id = img_id)
         session.add(newItem)
         session.commit()
+        return newItem
 
-    def update(self, title, desc, category_id, img_id):
-        self.title = title
-        self.desc = desc
-        self.category_id = category_id
-        self.img_id = self.img_id
-        self.datetime = datetime.datetime.now()
-        session.commit()
+    def update(self, title = None, desc = None, category_id = None, img_id = None):
+        if title:
+            self.title = title
+        if desc:
+            self.desc = desc
+        if category_id:
+            self.category_id = category_id
+        if img_id:
+            self.img_id = self.img_id
+        if title or desc or category_id or img_id:
+            self.datetime = datetime.datetime.now()
+            session.commit()
 
     @classmethod
     def delete_by_id(cls, item_id):
