@@ -72,6 +72,9 @@ class Category(Base):
         session.delete(categoryToDelete)
         session.commit()
 
+    def get_all_items(self):
+        return Item.get_all_by_category(self.id)
+
     @property
     def serialize(self):
        """Return object data in easily serializeable format"""

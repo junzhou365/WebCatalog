@@ -143,8 +143,11 @@ def deleteItem(category_id, item_id):
 @app.route('/catalog/search', methods = ['GET'])
 def search():
     q = request.args.get('q')
-    category = Category.get_by_name(q)
     item = Item.get_by_title(q)
+    category = None
+    if item:
+        category = Category.get_by_id(item.category_id)
+
     return render_page('searchResult.html', category = category, item = item)
 
 # Login
@@ -156,7 +159,7 @@ app.add_url_rule('/catalog/signup/', 'signup', login_manager.signup, methods = [
 # Logout
 app.add_url_rule('/catalog/logout/', 'logout', login_manager.logout, methods = ['GET'])
 
-#@app.route('/catalog/category_<int:category_id>.json')
+# JSON 
 @app.route('/catalog.json')
 def categories_json():
     categories = Category.get_all()
@@ -171,6 +174,16 @@ def items_json(category_id):
 def item_json(category_id, item_id):
     item = Item.get_by_id(item_id)
     return jsonify(Item=item.serialize)
+    
+# XML
+@app.route('/catalog.xml')
+def categories_xml():
+    categories = Category.get_all()
+    categories_xml = render_template('catalog.xml', categories = categories)
+    response = make_response(categories_xml)
+    response.headers["Content-Type"] = "application/xml"
+    return response
+
     
 
 if __name__ == '__main__':
