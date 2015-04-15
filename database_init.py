@@ -1,6 +1,8 @@
 from catalogDB import Item, Category, Image
 import datetime
+import os
 
+os.mkdir('static/images')
 # porsche
 porsche = Category.store('Porsche')
 # 911
@@ -24,7 +26,7 @@ x = Image.store('M3', '', 'http://cdn.bmwblog.com/wp-content/uploads/292398_1015
 Item.store(x.img_title, 'Sports Car', bmw.id, x.id)
 
 # X5
-x = Image.store('M3', '', 'http://wallpapers111.com/wp-content/uploads/2015/03/BMW-X5-Pictures.jpg')
+x = Image.store('X5', '', 'http://wallpapers111.com/wp-content/uploads/2015/03/BMW-X5-Pictures.jpg')
 Item.store(x.img_title, 'SUV', bmw.id, x.id)
 
 # i8

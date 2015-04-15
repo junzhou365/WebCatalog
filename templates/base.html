@@ -24,8 +24,8 @@
             </form>
             <div class="nav navbar-nav navbar-right">
             {% if user %}
-                <p class="navbar-text">Signed in as {{user.name}}</p> 
                 <a type="button" class="btn btn-default navbar-btn" href="/catalog/logout">Logout</a>
+                <p class="navbar-text">Signed in as {{user.name}}</p> 
             {% else %}
                 <a type="button" class="btn btn-default navbar-btn" href="/catalog/login">Login</a>
                 <a type="button" class="btn btn-default navbar-btn" href="/catalog/signup">Signup</a>

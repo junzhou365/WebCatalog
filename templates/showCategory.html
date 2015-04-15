@@ -16,7 +16,7 @@
                     <div class="col-md-4 thumbnail text-center">
                         {{items[i][j].title}}
                         <a href="/catalog/category_{{category.id}}/item_{{items[i][j].id}}">
-                            <img src="{{items[i][j].get_img().img_url}}" class="img-responsive">
+                            <img src="{{items[i][j].get_img().img_src}}" class="img-responsive">
                         </a>
                     </div>
                 {% endfor %}
