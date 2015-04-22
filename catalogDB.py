@@ -12,8 +12,6 @@ import logging
 
 Base = declarative_base()
 RELATIVE_FOLDER_PATH = "static/images/"
-#LOCAL_PATH = "http://localhost:5000/catalog/"
-
 
 # return file path
 def download_file(url):
