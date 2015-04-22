@@ -1,6 +1,6 @@
-from flask import Flask, make_response, render_template, request, redirect, jsonify, url_for, send_from_directory
+from flask import make_response, render_template, request, redirect, jsonify, url_for, send_from_directory
+from Catalog import app
 
-from  main import app
 
 from catalogDB import Base, Category, Item, Image 
 from loginManager import LoginManager, User, SECRET
