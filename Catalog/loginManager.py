@@ -50,8 +50,7 @@ def redirect_url():
 # Accounts System 
 class LoginManager:
 
-    def __init__(self, app, path):
-        self.app = app
+    def __init__(self, path):
         self.path = path
         self.user = None
 

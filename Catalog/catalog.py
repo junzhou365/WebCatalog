@@ -6,7 +6,7 @@ from catalogDB import Base, Category, Item, Image
 from loginManager import LoginManager, User, SECRET
 app.secret_key = SECRET
 
-login_manager = LoginManager(app, '/catalog')
+login_manager = LoginManager('/catalog')
 
 import logging
 
