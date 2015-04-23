@@ -15,15 +15,12 @@ RELATIVE_FOLDER_PATH = "static/images/"
 
 # return file path
 def download_file(url):
-    baseFile = os.path.basename(url)
-    #baseFile = baseFile.encode('ascii')
+    baseFile = os.path.basename(url) # base file name
     file_path = os.path.join(RELATIVE_FOLDER_PATH, baseFile)
     req = urllib2.urlopen(url)
-    f = open(file_path, 'wb')
-    #meta = u.info()
-    #file_size = int(meta.getheaders("Content-Length")[0])
+    f = open(file_path, 'wb') # 'wb': write binary
 
-    file_size_dl = 0
+    file_size_dl = 0 # downloaded file size
     block_sz = 8192
     while True:
         buffer = req.read(block_sz)
@@ -68,6 +65,7 @@ class Category(Base):
 
     @classmethod
     def delete_by_id(cls, category_id):
+        """Remove all items in this category"""
         itemsToDelete = Item.get_all_by_category(category_id)
         for itemToDelete in itemsToDelete:
             session.delete(itemToDelete)
@@ -76,6 +74,7 @@ class Category(Base):
         session.commit()
 
     def get_all_items(self):
+        """get all items in this category"""
         return Item.get_all_by_category(self.id)
 
     @property
@@ -142,6 +141,7 @@ class Item(Base):
         return result
 
     def get_img(self):
+        """get image path"""
         return session.query(Image).filter_by(id = self.img_id).one()
 
     @property
@@ -168,7 +168,7 @@ class Image(Base):
 
     @classmethod
     def store(cls, img_title, img_path, img_url):
-        # always store local image
+        """Always try to store local image"""
         if img_url:
             img_path = download_file(img_url)
         img_src = img_path
@@ -192,7 +192,7 @@ class Image(Base):
         self.datetime = datetime.datetime.now()
         session.commit()
         
-
+# Use psycopg2 to access postgresql
 engine = create_engine('postgresql+psycopg2:///catalog')
 Base.metadata.create_all(engine)
 
