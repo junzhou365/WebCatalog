@@ -1,3 +1,8 @@
+"""
+I spent a lot of time on this part, some of which are from codes that I 
+learned from Web Development at Udacity.
+"""
+
 import re
 import hashlib
 import hmac
