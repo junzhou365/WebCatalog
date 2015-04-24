@@ -23,10 +23,8 @@ database_init.py initializes the database and puts in some default items.
 
 database_setup.sql simply creates a database called catalog in postgresql.
 
-catalog.py is the main body of the project. View functions of rendering the websites are defined here. 
+catalogViews.py is the main body of the project. View functions of rendering the websites are defined here. 
 
-loginManager.py defines login and registration system. The system consists of two parts. 
-    User class interacts with User table. Login, Logout, and Signup view functions have been well defined. 
-    Additionaly, it defines some security functions such as make_hash_val and make_password.
+loginManager.py defines login and registration system. The system consists of two parts.  User class interacts with User table. Login, Logout, and Signup view functions have been well defined.  Additionaly, it defines some security functions such as make_hash_val and make_password.
 
 runserver.py is only used for running the application.
