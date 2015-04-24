@@ -1,6 +1,6 @@
 from flask import make_response, render_template, request, redirect, jsonify, url_for, send_from_directory
 from Catalog import app
-
+import logging
 
 from catalogDB import Base, Category, Item, Image 
 from loginManager import LoginManager, User, SECRET
@@ -8,22 +8,38 @@ app.secret_key = SECRET
 
 login_manager = LoginManager('/catalog')
 
-import logging
 
 def render_page(*a, **kw):
+    """Just pass user object to template to display user name"""
     kw['user'] = login_manager.user
     return render_template(*a, **kw)
 
 def redirect_url():
+    """Redirect the url
+
+    First try to redirect to the url in the 'next' query, then try previous 
+    page, finally redirect to home page.
+    """
     return request.args.get('next') or \
            request.referrer or \
            url_for('renderHomePage')
 
 @app.route('/catalog/', methods = ['GET'])
 def renderHomePage():
+    """Catalog home page
+    
+    It retrieves all categories and latest 10 items, then pass them to response
+    to render them. Items are listed in 2d list. 
+    In addtion, it initialize login_manager.
+
+    Returns:
+        render_page response
+    """
     login_manager.initialize()
     categories = Category.get_all()
     items = Item.get_latest_10_items()
+    # Create 2d array used for displaying in the html
+    # Its size is 4 * rows
     items_2d = []
     col_num = 4 # col_num % 12 = 0
     for i in range(0, len(items), col_num):
@@ -33,13 +49,25 @@ def renderHomePage():
         items_2d.append(list(temp))
     return render_page('catalog.html', categories = categories, items = items_2d, col_num = col_num)
 
-# Show a category
 @app.route('/catalog/category_<int:category_id>/', methods = ['GET'])
 def showCategory(category_id):
+    """Show Category and all the items in it
+
+    It retrieves all items in this category from database and then pass the 
+    reformed 2d array of items and category to the response to display them.
+
+    Arg:
+        category_id: category id
+    Returns:
+        render_page
+    """
     category = Category.get_by_id(category_id)
     items = Item.get_all_by_category(category_id)
+    # Create 2d array used for displaying in the html
+    # Its size is 3 * rows
     items_2d = []
-    for i in range(0, len(items), 3):
+    col_num = 3 # col_num % 12 = 0
+    for i in range(0, len(items), col_num):
         temp = []
         for j in range(i, min(len(items), i+3)):
             temp.append(items[j])
@@ -47,10 +75,18 @@ def showCategory(category_id):
     return render_page('showCategory.html', category = category, items = items_2d)
 
 
-# Edit a new category
 @app.route('/catalog/newCategory/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def newCategory():
+    """Edit a new category
+
+    It is responsible for creating new category. It verifies the input form,
+    which is category name, stores it.
+
+    Returns:
+        render_page if 'GET'
+        redirect to show newly created category if 'POST'
+    """
     if request.method == 'POST':
         category_name = request.form['category_name']
         params = dict(category_name = category_name)
@@ -73,10 +109,18 @@ def newCategory():
     else:
         return render_page('updateCategory.html')
 
-# Edit a category
 @app.route('/catalog/category_<int:category_id>/editCategory/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def editCategory(category_id):
+    """Edit an existing category
+
+    It changes the name of existing category and category column of all
+    items belonging to it.
+
+    Returns:
+        render_page if 'GET'
+        redirect to show changed category if 'POST'
+    """
     editingCategory = Category.get_by_id(category_id)
     if request.method == 'POST':
         category_name = request.form['category_name']
@@ -104,28 +148,55 @@ def editCategory(category_id):
         return render_page('updateCategory.html', category = editingCategory)
 
 # Delete a category
-@app.route('/catalog/category_<int:category_id>/deleteCategory', methods = ['GET', 'POST']) 
+@app.route('/catalog/category_<int:category_id>/deleteCategory', methods = ['POST']) 
 @login_manager.login_required
 def deleteCategory(category_id):
+    """Delete an existing category
+
+    It deletes the selected existing category and all items belonging to it.
+    Only 'POST' is allowed here to ensure security.
+    No need to redirect or render a new delete page because JS would implement
+    it.
+
+    Returns:
+        redirect to show deleted category, which will be EMPTY page. 
+    """
     deleted_category_name = Category.get_by_id(category_id).name
-    if request.method == 'POST':
-        Category.delete_by_id(category_id)
-        return render_page('showCategory.html', deleted_category_name = deleted_category_name)
-    else:
-        pass
+    Category.delete_by_id(category_id)
+    return render_page('showCategory.html', deleted_category_name = deleted_category_name)
             
 # Show an Item
 @app.route('/catalog/category_<int:category_id>/item_<int:item_id>', methods = ['GET'])
 def showItem(category_id, item_id):
+    """Show Item
+
+    This view function needs login.
+    It is responsible for creating new category. It verifies the input form,
+    which is category name, stores it.
+
+    Returns:
+        render_page if 'GET'
+        redirect to show newly created category if 'POST'
+    """
     item = Item.get_by_id(item_id)
     category = Category.get_by_id(category_id)
     image = Image.get_by_id(item.img_id)
     return render_page('showItem.html', item = item, category = category, image = image)
 
-# Edit a new Item
 @app.route('/catalog/category_<int:category_id>/newItem/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def newItem(category_id):
+    """Edit a new Item
+
+    It create a new item. It verifies the input form,
+    which is item name, item description, item image url.
+    Image is downloaded from provided url. Item stores item name, item
+    description, and image object id. 
+
+    Returns:
+        render_page if 'GET'
+        redirect to show newly created item if 'POST'
+    """
     category = Category.get_by_id(category_id)
     if request.method == 'POST':
         img_title = None
@@ -138,10 +209,18 @@ def newItem(category_id):
     else:
         return render_page('updateItem.html', category = category)
 
-# Edit a Item
 @app.route('/catalog/category_<int:category_id>/item_<int:item_id>/editItem/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def editItem(category_id, item_id):
+    """Edit an existing item
+
+    It changes the name of existing category and category column of all
+    items belonging to it.
+
+    Returns:
+        render_page if 'GET'
+        redirect to show changed category if 'POST'
+    """
     item = Item.get_by_id(item_id)
     image = Image.get_by_id(item.img_id)
     category = Category.get_by_id(category_id)
@@ -158,19 +237,28 @@ def editItem(category_id, item_id):
         return render_page('updateItem.html', item = item, image = image, category = category, categories = categories)
 
 # Delete an item
-@app.route('/catalog/category_<int:category_id>/item_<int:item_id>/deleteItem', methods = ['GET', 'POST'])
+@app.route('/catalog/category_<int:category_id>/item_<int:item_id>/deleteItem', methods = ['POST'])
 @login_manager.login_required
 def deleteItem(category_id, item_id):
-    deleted_item_title = Item.get_by_id(item_id).title
-    if request.method == 'POST':
-        Item.delete_by_id(item_id)
-        return render_page('showItem.html', deleted_item_title = deleted_item_title, category_id = category_id)
-    else:
-        pass
+    """Delete an existing item
 
-# Search
+    It deletes the selected existing item. 
+    Only 'POST' is allowed here to ensure security.
+    No need to redirect or render a new delete page because JS would implement
+    it.
+
+    Args:
+
+    Returns:
+        redirect to show deleted item, which will be EMPTY page. 
+    """
+    deleted_item_title = Item.get_by_id(item_id).title
+    Item.delete_by_id(item_id)
+    return render_page('showItem.html', deleted_item_title = deleted_item_title, category_id = category_id)
+
 @app.route('/catalog/search', methods = ['GET'])
 def search():
+    """Search full name in database"""
     q = request.args.get('q')
     item = Item.get_by_title(q)
     category = None
@@ -179,34 +267,38 @@ def search():
 
     return render_page('searchResult.html', category = category, item = item)
 
-# Login
+# add url_rule to Login
 app.add_url_rule('/catalog/login/', 'login', login_manager.login, methods = ['GET', 'POST'])
 
-# Signup
+# add url_rule to Signup
 app.add_url_rule('/catalog/signup/', 'signup', login_manager.signup, methods = ['GET', 'POST'])
 
-# Logout
+# add url_rule to Logout
 app.add_url_rule('/catalog/logout/', 'logout', login_manager.logout, methods = ['GET'])
 
 # JSON 
 @app.route('/catalog.json')
 def categories_json():
+    """Categories JSON output"""
     categories = Category.get_all()
     return jsonify(Categories=[c.serialize for c in categories])
 
 @app.route('/catalog/category_<int:category_id>.json')
 def items_json(category_id):
+    """Items JSON output"""
     items = Item.get_all_by_category(category_id)
     return jsonify(Items=[i.serialize for i in items])
 
 @app.route('/catalog/category_<int:category_id>/item_<int:item_id>.json')
 def item_json(category_id, item_id):
+    """Single item JSON output"""
     item = Item.get_by_id(item_id)
     return jsonify(Item=item.serialize)
     
 # XML
 @app.route('/catalog.xml')
 def categories_xml():
+    """Categories XML output"""
     categories = Category.get_all()
     categories_xml = render_template('catalog.xml', categories = categories)
     response = make_response(categories_xml)

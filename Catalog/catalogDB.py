@@ -13,8 +13,15 @@ import logging
 Base = declarative_base()
 RELATIVE_FOLDER_PATH = "static/images/"
 
-# return file path
 def download_file(url):
+    """Download file from url to "static/images"
+
+    Download file. Filename is automatically given by the url last part.
+    Args:
+        url: string
+    Returns:
+        file path: string, relative path like "static/images/120938120.jpg"
+    """
     baseFile = os.path.basename(url) # base file name
     file_path = os.path.join(RELATIVE_FOLDER_PATH, baseFile)
     req = urllib2.urlopen(url)
@@ -33,6 +40,13 @@ def download_file(url):
     return '/' + file_path
 
 class Category(Base):
+    """Category table
+        
+    Columns: Id, Name, datetime(automatically updated after edited)
+
+    Methods which interact Category table are classmethods.
+    Methods which interact row are instance methods.
+    """
     __tablename__ = 'category'
 
     id = Column(Integer, primary_key=True)
@@ -59,6 +73,7 @@ class Category(Base):
         return newCategory
 
     def update(self, name):
+        """update name"""
         self.name = name
         self.datetime = datetime.datetime.now()
         session.commit()
@@ -87,6 +102,19 @@ class Category(Base):
        }
 
 class Item(Base):
+    """Item table
+        
+    Columns: 
+        id: Int
+        title: String 
+        desc: Text
+        category_id: Foreign Key
+        img_id: Int
+        datetime(automatically updated after edited)
+
+    Methods which interact Category table are classmethods.
+    Methods which interact row are instance methods.
+    """
     __tablename__ = 'item'
 
     id = Column(Integer, primary_key=True)
@@ -117,6 +145,7 @@ class Item(Base):
         return newItem
 
     def update(self, title = None, desc = None, category_id = None, img_id = None):
+    """Update row data"""
         if title:
             self.title = title
         if desc:
@@ -141,7 +170,7 @@ class Item(Base):
         return result
 
     def get_img(self):
-        """get image path"""
+        """get image object"""
         return session.query(Image).filter_by(id = self.img_id).one()
 
     @property
@@ -157,6 +186,19 @@ class Item(Base):
        }
 
 class Image(Base):
+    """Image table
+        
+    Columns: 
+        id: Int
+        title: String 
+        path: String
+        url: String
+        src: String (Used for html src)
+        datetime(automatically updated after edited)
+
+    Methods which interact Category table are classmethods.
+    Methods which interact row are instance methods.
+    """
     __tablename__ = 'image'
 
     id = Column(Integer, primary_key=True)
@@ -168,7 +210,7 @@ class Image(Base):
 
     @classmethod
     def store(cls, img_title, img_path, img_url):
-        """Always try to store local image"""
+        """Download image if possible and store its local path"""
         if img_url:
             img_path = download_file(img_url)
         img_src = img_path
@@ -183,7 +225,6 @@ class Image(Base):
         return session.query(Image).filter_by(id = img_id).one()
 
     def update(self, img_title, img_path, img_url):
-        # always store local image
         if img_path and img_url:
             img_url = None
         self.img_title = img_title

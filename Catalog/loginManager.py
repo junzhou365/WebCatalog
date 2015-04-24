@@ -56,7 +56,7 @@ def check_hash_val(hashed_val):
         return x
 
 def make_password(name, pw, salt=None):
-    """makde password
+    """Make password
 
     Hash the combination of name, password and salt to generate hashed password.
     Avoid storing plain passwords.
@@ -74,11 +74,11 @@ def make_password(name, pw, salt=None):
     return "%s|%s" %(h, salt)
 
 def set_cookie_val(val):
-    """set cookie value, in the format of "s | hash(s)" """
+    """Set cookie value, in the format of "s | hash(s)" """
     return make_hash_val(str(val))
 
 def redirect_url():
-    """redirect the url
+    """Redirect the url
 
     First try to redirect to the url in the 'next' request, then try previous 
     page, finally redirect to home page.
@@ -108,19 +108,19 @@ class LoginManager:
         """Username has at least 3 letters and at most 20 characters letters, 
         digits and underscore are allowed
         """
-         return self.USER_RE.match(username)
+        return self.USER_RE.match(username)
 
     PASS_RE = re.compile(r"^.{3,20}$")
     def valid_password(self, password):
         """Password has at least 3 letters and at most 20 characters no limits
         on character
         """
-         return self.PASS_RE.match(password)
+        return self.PASS_RE.match(password)
 
     EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
     def valid_email(self, email):
         """Email address is regular email address"""
-         return self.EMAIL_RE.match(email)
+        return self.EMAIL_RE.match(email)
 
     def valid_pw(self, name, pw, h):
         """Check if the password is valid"""
@@ -266,13 +266,13 @@ class LoginManager:
 
     # logout
     def logout(self):
-    """Logout
+        """Logout
 
-    Redirect to home, set the cookie null and set self.user None
+        Redirect to home, set the cookie null and set self.user None
 
-    Return:
-        flask response
-    """
+        Return:
+            flask response
+        """
         redirect_to_home = redirect(url_for('renderHomePage'))
         response = make_response(redirect_to_home)
         response.set_cookie('user_id', value='', path='/catalog')
@@ -283,11 +283,10 @@ class LoginManager:
 class User(Base):
     """User table
         
-    It saves users' information. 
     Columns: Id, Name, Hashed Password, Email Address
 
-    Methods are all classmethod because We don't need to instantiate user.
-    There's only one user table.
+    Methods which interact Category table are classmethods.
+    Methods which interact row are instance methods.
     """
     __tablename__ = 'user'
 
