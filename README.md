@@ -5,7 +5,7 @@ This is a project of Udacity Fullstack Nano-degree. It's a web application that 
 The database used is PostgreSQL. SQLAlchemy is used to access and manage the database. 
 Flask is the framework and Jinja2 is the template. It's written in python. In frontend, JavaScript is used to add some effects. Bootstrap makes CSS easier.
 
-It's been deployed to AWS EC2 at [here](www.junzhou365.com/catalog).
+It's been deployed to AWS EC2 at [here](http://www.junzhou365.com/catalog).
 
 ### setup steps
 
