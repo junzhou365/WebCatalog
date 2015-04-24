@@ -3,7 +3,7 @@
 This is a project of Udacity Fullstack Nano-degree. It's a web application that provides basic functionality for categorizing items. Storing other information of item such as image or description is supported.
 
 The database used is PostgreSQL. SQLAlchemy is used to access and manage the database. 
-Flask is the framework and Jinja2 is the template. It's written in python.
+Flask is the framework and Jinja2 is the template. It's written in python. In frontend, JavaScript is used to add some effects. Bootstrap makes CSS easier.
 
 ### setup steps
 
@@ -17,14 +17,14 @@ Flask is the framework and Jinja2 is the template. It's written in python.
 
 It consists of the following important files.
 
-catalogDB.py defines different database tables as classes by SQLAlchemy and provides interfaces to interact with them. 
+*catalogDB.py* defines different database tables as classes by SQLAlchemy and provides interfaces to interact with them. 
 
-database_init.py initializes the database and puts in some default items.
+*database_init.py* initializes the database and puts in some default items.
 
-database_setup.sql simply creates a database called catalog in postgresql.
+*database_setup.sql* simply creates a database called catalog in postgresql.
 
-catalogViews.py is the main body of the project. View functions of rendering the websites are defined here. 
+*catalogViews.py* is the main body of the project. View functions of rendering the websites are defined here. 
 
-loginManager.py defines login and registration system. The system consists of two parts.  User class interacts with User table. Login, Logout, and Signup view functions have been well defined.  Additionaly, it defines some security functions such as make_hash_val and make_password.
+*loginManager.py* defines login and registration system. The system consists of two parts.  User class interacts with User table. Login, Logout, and Signup view functions have been well defined.  Additionaly, it defines some security functions such as make_hash_val and make_password.
 
-runserver.py is only used for running the application.
+*runserver.py* is only used for running the application.
