@@ -2,4 +2,4 @@ from flask import Flask
 app = Flask(__name__) 
 
 import Catalog.welcome
-import Catalog.catalog
+import Catalog.catalogViews

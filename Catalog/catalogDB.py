@@ -145,7 +145,7 @@ class Item(Base):
         return newItem
 
     def update(self, title = None, desc = None, category_id = None, img_id = None):
-    """Update row data"""
+        """Update row data"""
         if title:
             self.title = title
         if desc:
