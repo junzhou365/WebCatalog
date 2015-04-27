@@ -209,11 +209,11 @@ class Image(Base):
     datetime = Column(DateTime, default=datetime.datetime.now)
 
     @classmethod
-    def store(cls, img_title, img_path, img_url):
+    def store(cls, img_title, img_path, img_url, url_prefix=None):
         """Download image if possible and store its local path"""
         if img_url:
             img_path = download_file(img_url)
-        img_src = img_path
+        img_src = url_prefix + img_path
              
         newImg = Image(img_title = img_title, img_path = img_path, img_url = img_url, img_src = img_src)
         session.add(newImg)

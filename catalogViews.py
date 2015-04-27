@@ -1,5 +1,5 @@
-from flask import make_response, render_template, request, redirect, jsonify, url_for, send_from_directory
-from Catalog import app
+from flask import Blueprint, make_response, render_template, request, redirect, jsonify, url_for, send_from_directory
+from junzhou365 import app
 import logging
 
 from catalogDB import Base, Category, Item, Image 
@@ -7,11 +7,12 @@ from loginManager import LoginManager, User, SECRET
 app.secret_key = SECRET
 
 login_manager = LoginManager('/catalog')
-
+catalog = Blueprint('catalog', __name__, template_folder='templates', static_folder='static')
 
 def render_page(*a, **kw):
     """Just pass user object to template to display user name"""
     kw['user'] = login_manager.user
+    kw['catalog'] = catalog
     return render_template(*a, **kw)
 
 def redirect_url():
@@ -24,7 +25,7 @@ def redirect_url():
            request.referrer or \
            url_for('renderHomePage')
 
-@app.route('/catalog/', methods = ['GET'])
+@catalog.route('/', methods = ['GET'])
 def renderHomePage():
     """Catalog home page
     
@@ -49,7 +50,7 @@ def renderHomePage():
         items_2d.append(list(temp))
     return render_page('catalog.html', categories = categories, items = items_2d, col_num = col_num)
 
-@app.route('/catalog/category_<int:category_id>/', methods = ['GET'])
+@catalog.route('/category_<int:category_id>/', methods = ['GET'])
 def showCategory(category_id):
     """Show Category and all the items in it
 
@@ -75,7 +76,7 @@ def showCategory(category_id):
     return render_page('showCategory.html', category = category, items = items_2d)
 
 
-@app.route('/catalog/newCategory/', methods = ['GET', 'POST'])
+@catalog.route('/newCategory/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def newCategory():
     """Edit a new category
@@ -109,7 +110,7 @@ def newCategory():
     else:
         return render_page('updateCategory.html')
 
-@app.route('/catalog/category_<int:category_id>/editCategory/', methods = ['GET', 'POST'])
+@catalog.route('/category_<int:category_id>/editCategory/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def editCategory(category_id):
     """Edit an existing category
@@ -148,7 +149,7 @@ def editCategory(category_id):
         return render_page('updateCategory.html', category = editingCategory)
 
 # Delete a category
-@app.route('/catalog/category_<int:category_id>/deleteCategory', methods = ['POST']) 
+@catalog.route('/category_<int:category_id>/deleteCategory', methods = ['POST']) 
 @login_manager.login_required
 def deleteCategory(category_id):
     """Delete an existing category
@@ -166,7 +167,7 @@ def deleteCategory(category_id):
     return render_page('showCategory.html', deleted_category_name = deleted_category_name)
             
 # Show an Item
-@app.route('/catalog/category_<int:category_id>/item_<int:item_id>', methods = ['GET'])
+@catalog.route('/category_<int:category_id>/item_<int:item_id>', methods = ['GET'])
 def showItem(category_id, item_id):
     """Show Item
 
@@ -183,7 +184,7 @@ def showItem(category_id, item_id):
     image = Image.get_by_id(item.img_id)
     return render_page('showItem.html', item = item, category = category, image = image)
 
-@app.route('/catalog/category_<int:category_id>/newItem/', methods = ['GET', 'POST'])
+@catalog.route('/category_<int:category_id>/newItem/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def newItem(category_id):
     """Edit a new Item
@@ -209,7 +210,7 @@ def newItem(category_id):
     else:
         return render_page('updateItem.html', category = category)
 
-@app.route('/catalog/category_<int:category_id>/item_<int:item_id>/editItem/', methods = ['GET', 'POST'])
+@catalog.route('/category_<int:category_id>/item_<int:item_id>/editItem/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def editItem(category_id, item_id):
     """Edit an existing item
@@ -237,7 +238,7 @@ def editItem(category_id, item_id):
         return render_page('updateItem.html', item = item, image = image, category = category, categories = categories)
 
 # Delete an item
-@app.route('/catalog/category_<int:category_id>/item_<int:item_id>/deleteItem', methods = ['POST'])
+@catalog.route('/category_<int:category_id>/item_<int:item_id>/deleteItem', methods = ['POST'])
 @login_manager.login_required
 def deleteItem(category_id, item_id):
     """Delete an existing item
@@ -256,7 +257,7 @@ def deleteItem(category_id, item_id):
     Item.delete_by_id(item_id)
     return render_page('showItem.html', deleted_item_title = deleted_item_title, category_id = category_id)
 
-@app.route('/catalog/search', methods = ['GET'])
+@catalog.route('/search', methods = ['GET'])
 def search():
     """Search full name in database"""
     q = request.args.get('q')
@@ -268,35 +269,35 @@ def search():
     return render_page('searchResult.html', category = category, item = item)
 
 # add url_rule to Login
-app.add_url_rule('/catalog/login/', 'login', login_manager.login, methods = ['GET', 'POST'])
+catalog.add_url_rule('/login/', 'login', login_manager.login, methods = ['GET', 'POST'])
 
 # add url_rule to Signup
-app.add_url_rule('/catalog/signup/', 'signup', login_manager.signup, methods = ['GET', 'POST'])
+catalog.add_url_rule('/signup/', 'signup', login_manager.signup, methods = ['GET', 'POST'])
 
 # add url_rule to Logout
-app.add_url_rule('/catalog/logout/', 'logout', login_manager.logout, methods = ['GET'])
+catalog.add_url_rule('/logout/', 'logout', login_manager.logout, methods = ['GET'])
 
 # JSON 
-@app.route('/catalog.json')
+@catalog.route('/.json')
 def categories_json():
     """Categories JSON output"""
     categories = Category.get_all()
     return jsonify(Categories=[c.serialize for c in categories])
 
-@app.route('/catalog/category_<int:category_id>.json')
+@catalog.route('/category_<int:category_id>.json')
 def items_json(category_id):
     """Items JSON output"""
     items = Item.get_all_by_category(category_id)
     return jsonify(Items=[i.serialize for i in items])
 
-@app.route('/catalog/category_<int:category_id>/item_<int:item_id>.json')
+@catalog.route('/category_<int:category_id>/item_<int:item_id>.json')
 def item_json(category_id, item_id):
     """Single item JSON output"""
     item = Item.get_by_id(item_id)
     return jsonify(Item=item.serialize)
     
 # XML
-@app.route('/catalog.xml')
+@catalog.route('/.xml')
 def categories_xml():
     """Categories XML output"""
     categories = Category.get_all()

@@ -77,15 +77,6 @@ def set_cookie_val(val):
     """Set cookie value, in the format of "s | hash(s)" """
     return make_hash_val(str(val))
 
-def redirect_url():
-    """Redirect the url
-
-    First try to redirect to the url in the 'next' request, then try previous 
-    page, finally redirect to home page.
-    """
-    return request.args.get('next') or request.referrer or \
-           url_for('renderHomePage')
-
 class LoginManager:
     """Accounts System
     
@@ -141,7 +132,7 @@ class LoginManager:
             response setting a cookie in the format like:
             "name=user_id; value=129381728937192;path=/catalog"
         """
-        response.set_cookie('user_id', value=set_cookie_val(user.id), path='/catalog')
+        response.set_cookie('user_id', value=set_cookie_val(user.id), path=self.path)
 
     def initialize(self):
         """Read cookie and retrieve user object"""
@@ -156,6 +147,15 @@ class LoginManager:
         u = User.get_by_name(name)
         if u and self.valid_pw(name, pw, u.pw_hash):
             return u
+
+    def redirect_url(self):
+        """Redirect the url
+
+        First try to redirect to the url in the 'next' request, then try previous 
+        page, finally redirect to home page.
+        """
+        return request.args.get('next') or request.referrer or \
+            redirect(self.path)
 
     def login_required(self, func):
         """decorator to decorate functions which require login"""
@@ -203,7 +203,7 @@ class LoginManager:
         else:
             # remember the previous url using redirect_url()
             # usually the previous url is request.referrer
-            next_url = redirect_url() 
+            next_url = self.redirect_url() 
             # write next_url into html to let "POST" get it
             return render_template('login.html', next_url = next_url)
 
@@ -256,7 +256,7 @@ class LoginManager:
                 return render_template("signup.html", **params)
             else:
                 u = User.store(username, password, email)
-                redirect_to_home = redirect(url_for('renderHomePage'))
+                redirect_to_home = redirect(self.path)
                 response = make_response(redirect_to_home)
                 self.login_set_cookie(u, response)
                 self.user = u
@@ -273,9 +273,9 @@ class LoginManager:
         Return:
             flask response
         """
-        redirect_to_home = redirect(url_for('renderHomePage'))
+        redirect_to_home = redirect(self.path)
         response = make_response(redirect_to_home)
-        response.set_cookie('user_id', value='', path='/catalog')
+        response.set_cookie('user_id', value='', path=self.path)
         self.user = None
         return response
 
