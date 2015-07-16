@@ -5,16 +5,10 @@ import random
 import string
 import logging
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Text
-from sqlalchemy.ext.declarative import declarative_base
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-Base = declarative_base()
-
 from flask import flash, make_response, render_template, request, redirect, jsonify, url_for
 from functools import wraps
+
+from factory import db
 
 SECRET = 'AK1747' # secret word used for hashing string
 def hash_str(s):
@@ -280,7 +274,7 @@ class LoginManager:
         return response
 
 # User
-class User(Base):
+class User(db.Model):
     """User table
         
     Columns: Id, Name, Hashed Password, Email Address
@@ -290,30 +284,23 @@ class User(Base):
     """
     __tablename__ = 'user'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
-    pw_hash = Column(String(250), nullable=False)
-    email = Column(String(250))
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(250), nullable=False)
+    pw_hash = db.Column(db.String(250), nullable=False)
+    email = db.Column(db.String(250))
 
     @classmethod
     def get_by_name(cls, name):
-        return session.query(User).filter_by(name = name).first()
+        return db.session.query(User).filter_by(name = name).first()
 
     @classmethod
     def get_by_id(cls, uid):
-        return session.query(User).filter_by(id = uid).first()
+        return db.session.query(User).filter_by(id = uid).first()
 
     @classmethod
     def store(cls, name, pw, email):
         """return newly stored user object"""
         newUser = User(name=name, pw_hash=make_password(name, pw), email=email)
-        session.add(newUser)
-        session.commit()
+        db.session.add(newUser)
+        db.session.commit()
         return newUser
-        
-
-engine = create_engine('postgresql+psycopg2:///catalog')
-Base.metadata.create_all(engine)
-
-DBSession = sessionmaker(bind=engine)
-session = DBSession()

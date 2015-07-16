@@ -1,17 +1,12 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Text, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
 import datetime
 import urllib2
 import os
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
 import logging
 
-Base = declarative_base()
-RELATIVE_FOLDER_PATH = "static/images/"
+from factory import db
+
+IMAGES_PATH = "static/images/"
+PARENT_FOLDER_PATH = "junzhou365/catalog/"
 
 def download_file(url):
     """Download file from url to "static/images"
@@ -23,9 +18,13 @@ def download_file(url):
         file path: string, relative path like "static/images/120938120.jpg"
     """
     baseFile = os.path.basename(url) # base file name
-    file_path = os.path.join(RELATIVE_FOLDER_PATH, baseFile)
+    file_path = os.path.join(IMAGES_PATH, baseFile)
     req = urllib2.urlopen(url)
-    f = open(file_path, 'wb') # 'wb': write binary
+    dirname = os.path.dirname(PARENT_FOLDER_PATH + IMAGES_PATH)
+
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    f = open(os.path.join(PARENT_FOLDER_PATH, file_path), 'wb') # 'wb': write binary
 
     file_size_dl = 0 # downloaded file size
     block_sz = 8192
@@ -39,7 +38,7 @@ def download_file(url):
     f.close()
     return '/' + file_path
 
-class Category(Base):
+class Category(db.Model):
     """Category table
         
     Columns: Id, Name, datetime(automatically updated after edited)
@@ -49,44 +48,44 @@ class Category(Base):
     """
     __tablename__ = 'category'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
-    datetime = Column(DateTime, default=datetime.datetime.now)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(250), nullable=False)
+    datetime = db.Column(db.DateTime, default=datetime.datetime.now)
 
     @classmethod
     def get_by_id(cls, category_id):
-        return session.query(Category).filter_by(id = category_id).one()
+        return db.session.query(Category).filter_by(id = category_id).one()
 
     @classmethod
     def get_by_name(cls, name):
-        return session.query(Category).filter_by(name = name).first()
+        return db.session.query(Category).filter_by(name = name).first()
 
     @classmethod
     def get_all(cls):
-        return list(session.query(Category).all())
+        return list(db.session.query(Category).all())
 
     @classmethod
     def store(cls, name):
         newCategory = Category(name = name)
-        session.add(newCategory)
-        session.commit()
+        db.session.add(newCategory)
+        db.session.commit()
         return newCategory
 
     def update(self, name):
         """update name"""
         self.name = name
         self.datetime = datetime.datetime.now()
-        session.commit()
+        db.session.commit()
 
     @classmethod
     def delete_by_id(cls, category_id):
         """Remove all items in this category"""
         itemsToDelete = Item.get_all_by_category(category_id)
         for itemToDelete in itemsToDelete:
-            session.delete(itemToDelete)
+            db.session.delete(itemToDelete)
         categoryToDelete = Category.get_by_id(category_id)
-        session.delete(categoryToDelete)
-        session.commit()
+        db.session.delete(categoryToDelete)
+        db.session.commit()
 
     def get_all_items(self):
         """get all items in this category"""
@@ -101,7 +100,7 @@ class Category(Base):
            'id'         : self.id,
        }
 
-class Item(Base):
+class Item(db.Model):
     """Item table
         
     Columns: 
@@ -117,31 +116,31 @@ class Item(Base):
     """
     __tablename__ = 'item'
 
-    id = Column(Integer, primary_key=True)
-    title = Column(String(250), nullable=False)
-    desc = Column(Text)
-    category_id = Column(Integer, ForeignKey('category.id'))
-    category = relationship(Category)
-    img_id = Column(Integer, nullable=True)
-    datetime = Column(DateTime, default=datetime.datetime.now)
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(250), nullable=False)
+    desc = db.Column(db.Text)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    category = db.relationship(Category)
+    img_id = db.Column(db.Integer, nullable=True)
+    datetime = db.Column(db.DateTime, default=datetime.datetime.now)
 
     @classmethod
     def get_by_id(cls, item_id):
-        return session.query(Item).filter_by(id = item_id).one()
+        return db.session.query(Item).filter_by(id = item_id).one()
 
     @classmethod
     def get_by_title(cls, title):
-        return session.query(Item).filter_by(title = title).first()
+        return db.session.query(Item).filter_by(title = title).first()
 
     @classmethod
     def get_all_by_category(cls, category_id):
-        return list(session.query(Item).filter_by(category_id = category_id).all())
+        return list(db.session.query(Item).filter_by(category_id = category_id).all())
 
     @classmethod
     def store(cls, title, desc, category_id, img_id):
         newItem = Item(title = title, desc = desc, category_id = category_id, img_id = img_id)
-        session.add(newItem)
-        session.commit()
+        db.session.add(newItem)
+        db.session.commit()
         return newItem
 
     def update(self, title = None, desc = None, category_id = None, img_id = None):
@@ -156,22 +155,22 @@ class Item(Base):
             self.img_id = self.img_id
         if title or desc or category_id or img_id:
             self.datetime = datetime.datetime.now()
-            session.commit()
+            db.session.commit()
 
     @classmethod
     def delete_by_id(cls, item_id):
         itemToDelete = Item.get_by_id(item_id)
-        session.delete(itemToDelete)
-        session.commit()
+        db.session.delete(itemToDelete)
+        db.session.commit()
 
     @classmethod
     def get_latest_10_items(cls):
-        result = session.query(Item).order_by(cls.datetime.desc()).all()
+        result = db.session.query(Item).order_by(cls.datetime.desc()).all()
         return result
 
     def get_img(self):
         """get image object"""
-        return session.query(Image).filter_by(id = self.img_id).one()
+        return db.session.query(Image).filter_by(id = self.img_id).one()
 
     @property
     def serialize(self):
@@ -185,7 +184,7 @@ class Item(Base):
            'id'         : self.id,
        }
 
-class Image(Base):
+class Image(db.Model):
     """Image table
         
     Columns: 
@@ -201,28 +200,28 @@ class Image(Base):
     """
     __tablename__ = 'image'
 
-    id = Column(Integer, primary_key=True)
-    img_title = Column(String(250))
-    img_path = Column(String)
-    img_url = Column(String)
-    img_src = Column(String)
-    datetime = Column(DateTime, default=datetime.datetime.now)
+    id = db.Column(db.Integer, primary_key=True)
+    img_title = db.Column(db.String(250))
+    img_path = db.Column(db.String)
+    img_url = db.Column(db.String)
+    img_src = db.Column(db.String)
+    datetime = db.Column(db.DateTime, default=datetime.datetime.now)
 
     @classmethod
-    def store(cls, img_title, img_path, img_url, url_prefix=None):
+    def store(cls, img_title, img_path, img_url, url_prefix=""):
         """Download image if possible and store its local path"""
         if img_url:
             img_path = download_file(img_url)
         img_src = url_prefix + img_path
              
         newImg = Image(img_title = img_title, img_path = img_path, img_url = img_url, img_src = img_src)
-        session.add(newImg)
-        session.commit()
+        db.session.add(newImg)
+        db.session.commit()
         return newImg
 
     @classmethod
     def get_by_id(cls, img_id):
-        return session.query(Image).filter_by(id = img_id).one()
+        return db.session.query(Image).filter_by(id = img_id).one()
 
     def update(self, img_title, img_path, img_url):
         if img_path and img_url:
@@ -231,11 +230,4 @@ class Image(Base):
         self.img_path = img_path
         self.img_url = img_url
         self.datetime = datetime.datetime.now()
-        session.commit()
-        
-# Use psycopg2 to access postgresql
-engine = create_engine('postgresql+psycopg2:///catalog')
-Base.metadata.create_all(engine)
-
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
+        db.session.commit()

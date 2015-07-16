@@ -1,13 +1,11 @@
-from flask import Blueprint, make_response, render_template, request, redirect, jsonify, url_for, send_from_directory
-from junzhou365 import app
+from flask import make_response, render_template, request, redirect, jsonify, url_for, send_from_directory
+from . import catalog
 import logging
 
-from catalogDB import Base, Category, Item, Image 
-from loginManager import LoginManager, User, SECRET
-app.secret_key = SECRET
+from .catalog_models import Category, Item, Image 
+from .loginManager import LoginManager, User, SECRET
 
 login_manager = LoginManager('/catalog')
-catalog = Blueprint('catalog', __name__, template_folder='templates', static_folder='static')
 
 def render_page(*a, **kw):
     """Just pass user object to template to display user name"""
@@ -50,7 +48,7 @@ def renderHomePage():
         items_2d.append(list(temp))
     return render_page('catalog.html', categories = categories, items = items_2d, col_num = col_num)
 
-@catalog.route('/category_<int:category_id>/', methods = ['GET'])
+@catalog.route('/categories/<int:category_id>/')
 def showCategory(category_id):
     """Show Category and all the items in it
 
@@ -76,7 +74,11 @@ def showCategory(category_id):
     return render_page('showCategory.html', category = category, items = items_2d)
 
 
-@catalog.route('/newCategory/', methods = ['GET', 'POST'])
+@catalog.route('/categories/new/')
+def getNewCategoryForm():
+    return render_page('updateCategory.html')
+
+@catalog.route('/categories/', methods = ['POST'])
 @login_manager.login_required
 def newCategory():
     """Edit a new category
@@ -106,9 +108,7 @@ def newCategory():
 
         else:
             category = Category.store(category_name)
-            return redirect('/catalog/category_%s' % category.id)
-    else:
-        return render_page('updateCategory.html')
+            return redirect('/catagories/%s' % category.id)
 
 @catalog.route('/category_<int:category_id>/editCategory/', methods = ['GET', 'POST'])
 @login_manager.login_required
@@ -149,7 +149,7 @@ def editCategory(category_id):
         return render_page('updateCategory.html', category = editingCategory)
 
 # Delete a category
-@catalog.route('/category_<int:category_id>/deleteCategory', methods = ['POST']) 
+@catalog.route('/categories/<int:category_id>', methods = ['DELETE']) 
 @login_manager.login_required
 def deleteCategory(category_id):
     """Delete an existing category
