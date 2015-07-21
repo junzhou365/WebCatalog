@@ -15,7 +15,7 @@
         <div class="col-md-10">{{item.desc | safe}}</div>
     </div>
     <div class="row section">
-        <img src="{{image.img_src}}" class="img-responsive center-block" alt="{{image.img_title}}">
+        <img src="{{image.img_src if image.img_src else image.img_url}}" class="img-responsive center-block" alt="{{image.img_title}}">
     </div>
     <div class="edit">
         {% if user %}

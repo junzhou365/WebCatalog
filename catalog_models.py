@@ -1,42 +1,8 @@
 import datetime
-import urllib2
-import os
 import logging
 
+from tools import download_file
 from factory import db
-
-IMAGES_PATH = "static/images/"
-PARENT_FOLDER_PATH = "junzhou365/catalog/"
-
-def download_file(url):
-    """Download file from url to "static/images"
-
-    Download file. Filename is automatically given by the url last part.
-    Args:
-        url: string
-    Returns:
-        file path: string, relative path like "static/images/120938120.jpg"
-    """
-    baseFile = os.path.basename(url) # base file name
-    file_path = os.path.join(IMAGES_PATH, baseFile)
-    req = urllib2.urlopen(url)
-    dirname = os.path.dirname(PARENT_FOLDER_PATH + IMAGES_PATH)
-
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
-    f = open(os.path.join(PARENT_FOLDER_PATH, file_path), 'wb') # 'wb': write binary
-
-    file_size_dl = 0 # downloaded file size
-    block_sz = 8192
-    while True:
-        buffer = req.read(block_sz)
-        if not buffer:
-            break
-
-        file_size_dl += len(buffer)
-        f.write(buffer)
-    f.close()
-    return '/' + file_path
 
 class Category(db.Model):
     """Category table
@@ -210,9 +176,9 @@ class Image(db.Model):
     @classmethod
     def store(cls, img_title, img_path, img_url, url_prefix=""):
         """Download image if possible and store its local path"""
-        if img_url:
-            img_path = download_file(img_url)
-        img_src = url_prefix + img_path
+        img_path, img_src = download_file(img_url), None
+        if img_path:
+            img_src = url_prefix + img_path
              
         newImg = Image(img_title = img_title, img_path = img_path, img_url = img_url, img_src = img_src)
         db.session.add(newImg)

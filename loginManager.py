@@ -148,8 +148,7 @@ class LoginManager:
         First try to redirect to the url in the 'next' request, then try previous 
         page, finally redirect to home page.
         """
-        return request.args.get('next') or request.referrer or \
-            redirect(self.path)
+        return request.args.get('next') or request.referrer or url_for('catalog.renderHomePage')
 
     def login_required(self, func):
         """decorator to decorate functions which require login"""
@@ -189,7 +188,10 @@ class LoginManager:
                 return render_template('login.html', error_message = "Invalid Login") 
             else:
                 # redirect_to_prev: page before direct to login page
-                redirect_to_prev = redirect(request.form['next_url'])
+                next_url = request.form.get('next_url')
+                if not next_url:
+                    next_url = url_for('catalog.renderHomePage')
+                redirect_to_prev = redirect(next_url)
                 response = make_response(redirect_to_prev)
                 self.login_set_cookie(u, response)
                 self.user = u
@@ -198,6 +200,7 @@ class LoginManager:
             # remember the previous url using redirect_url()
             # usually the previous url is request.referrer
             next_url = self.redirect_url() 
+            #logging.error(next_url)
             # write next_url into html to let "POST" get it
             return render_template('login.html', next_url = next_url)
 

@@ -74,11 +74,8 @@ def showCategory(category_id):
     return render_page('showCategory.html', category = category, items = items_2d)
 
 
-@catalog.route('/categories/new/')
-def getNewCategoryForm():
-    return render_page('updateCategory.html')
 
-@catalog.route('/categories/', methods = ['POST'])
+@catalog.route('/categories/new', methods = ['GET', 'POST'])
 @login_manager.login_required
 def newCategory():
     """Edit a new category
@@ -108,9 +105,11 @@ def newCategory():
 
         else:
             category = Category.store(category_name)
-            return redirect('/catagories/%s' % category.id)
+            return redirect(url_for('catalog.showCategory', category_id=category.id))
 
-@catalog.route('/category_<int:category_id>/editCategory/', methods = ['GET', 'POST'])
+    else:
+        return render_page('updateCategory.html')
+@catalog.route('/categories/<int:category_id>/edit/', methods = ['GET', 'POST'])
 @login_manager.login_required
 def editCategory(category_id):
     """Edit an existing category
@@ -144,7 +143,7 @@ def editCategory(category_id):
             # update all itmes of this category
             for item in editingCategory.get_all_items():
                 item.update(category_id = editingCategory.id)
-            return redirect('/catalog/category_%s' % editingCategory.id)
+            return redirect(url_for('catalog.showCategory', category_id=editingCategory.id))
     else:
         return render_page('updateCategory.html', category = editingCategory)
 
