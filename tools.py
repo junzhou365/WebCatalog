@@ -22,6 +22,8 @@ def download_file(url):
         req = urllib2.urlopen(url)
     except urllib2.HTTPError:
         return None
+    except urllib2.URLError:
+        return None
     dirname = os.path.dirname(__file__) + '/' + IMAGES_PATH
 
     if not os.path.exists(dirname):
